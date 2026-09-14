@@ -78,10 +78,15 @@ Register an account through the running app and confirm it by email,
 then in the Supabase SQL editor:
 
 ```sql
-update public.profiles
-set is_admin = true, approved = true
-where id = (select id from auth.users where email = 'you@example.com');
+insert into public.profiles (id, full_name, email, is_admin, approved)
+select id, raw_user_meta_data ->> 'full_name', email, true, true
+from auth.users where email = 'you@example.com'
+on conflict (id) do update set is_admin = true, approved = true;
 ```
+
+(To skip the confirmation email: Supabase dashboard → Authentication →
+Users → **Add user → Create new user**, tick **Auto Confirm User**, then
+run the statement above.)
 
 Admins see two extra nav links: **Registrations** (`/admin/users` —
 approve new signups) and **Messages** (`/admin/messages` — read
