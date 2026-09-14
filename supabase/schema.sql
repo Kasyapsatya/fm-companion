@@ -39,6 +39,25 @@ update public.profiles p set email = u.email
 
 alter table public.profiles enable row level security;
 
+-- Is the current caller an admin? Policies must use this rather than
+-- querying public.profiles inline: a policy ON profiles that selects
+-- FROM profiles re-triggers its own RLS check and Postgres aborts every
+-- query with "infinite recursion detected in policy for relation
+-- profiles" (42P17) -- which the app sees as "no profile", bouncing
+-- even admins to /pending. SECURITY DEFINER runs the lookup as the
+-- function owner, which bypasses RLS, so there is no recursion.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer set search_path = public
+as $$
+  select coalesce(
+    (select is_admin from public.profiles where id = auth.uid()),
+    false
+  );
+$$;
+
 drop policy if exists "profiles: read own" on public.profiles;
 drop policy if exists "profiles: admin read all" on public.profiles;
 drop policy if exists "profiles: admin update" on public.profiles;
@@ -52,12 +71,7 @@ create policy "profiles: read own" on public.profiles
 -- list). Combined with "read own" above via OR, per Postgres RLS
 -- semantics for multiple policies on the same command.
 create policy "profiles: admin read all" on public.profiles
-  for select using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin
-    )
-  );
+  for select using (public.is_admin());
 
 -- Only admins may write approved/is_admin on ANY row (including their
 -- own) -- never the app on a user's own behalf, and never a plain
@@ -65,12 +79,7 @@ create policy "profiles: admin read all" on public.profiles
 -- only ever writes the `approved` column from /admin/users, and only
 -- an admin's session can pass the USING clause to begin with.
 create policy "profiles: admin update" on public.profiles
-  for update using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin
-    )
-  ) with check (true);
+  for update using (public.is_admin()) with check (true);
 
 -- Auto-create a profile row whenever a new auth user signs up, copying
 -- the full_name they registered with. New rows start unapproved.
@@ -90,6 +99,14 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Backfill: anyone who signed up before the trigger above existed has
+-- no profile row, which leaves them stuck at /pending AND invisible on
+-- /admin/users. Give them one (unapproved) so an admin can see them.
+insert into public.profiles (id, full_name, email)
+select u.id, u.raw_user_meta_data ->> 'full_name', u.email
+from auth.users u
+where not exists (select 1 from public.profiles p where p.id = u.id);
 
 -- ---------------------------------------------------------------------
 -- contact_messages: submissions from the "Contact the authors" form.
@@ -121,20 +138,21 @@ create policy "contact_messages: insert" on public.contact_messages
 -- Only admins may read the submitted messages (checked against the
 -- profiles table, not a client-supplied flag).
 create policy "contact_messages: admin read" on public.contact_messages
-  for select using (
-    exists (
-      select 1 from public.profiles
-      where profiles.id = auth.uid() and profiles.is_admin
-    )
-  );
+  for select using (public.is_admin());
 
 -- ---------------------------------------------------------------------
 -- Making yourself the first admin (run manually, once, after
 -- registering and confirming your own account by email):
 --
---   update public.profiles
---   set is_admin = true, approved = true
---   where id = (select id from auth.users where email = 'you@example.com');
+--   insert into public.profiles (id, full_name, email, is_admin, approved)
+--   select id, raw_user_meta_data ->> 'full_name', email, true, true
+--   from auth.users where email = 'you@example.com'
+--   on conflict (id) do update set is_admin = true, approved = true;
+--
+-- (No need to register through the app first if you'd rather not wait
+-- on the confirmation email: Supabase dashboard -> Authentication ->
+-- Users -> Add user -> Create new user, tick "Auto Confirm User", then
+-- run the statement above.)
 --
 -- Every admin you promote after that is automatically approved too
 -- (is_admin counts as approved -- see proxy.ts); everyone else waits

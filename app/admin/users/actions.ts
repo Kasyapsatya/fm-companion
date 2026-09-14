@@ -29,7 +29,8 @@ export async function approveUser(formData: FormData) {
   // this is an admin action -- this function's own requireAdmin() check
   // above is a friendlier failure mode (redirect, not a thrown RLS
   // error), not the only gate.
-  await supabase.from("profiles").update({ approved: true }).eq("id", userId);
+  const { error } = await supabase.from("profiles").update({ approved: true }).eq("id", userId);
+  if (error) throw new Error(`Could not approve user: ${error.message}`);
 
   revalidatePath("/admin/users");
 }

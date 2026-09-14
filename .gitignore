@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local-only SQL (e.g. dev admin seed with a password in it)
+*.local.sql
+
 # vercel
 .vercel
 

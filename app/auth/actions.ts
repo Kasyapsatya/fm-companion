@@ -20,7 +20,7 @@ export async function signUp(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { full_name: fullName } },
@@ -30,12 +30,30 @@ export async function signUp(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent(error.message)}`);
   }
 
+  // With "Confirm email" on (Supabase's default) there's no session until
+  // the link in the email is clicked -- say so, rather than sending them
+  // to /app and having the proxy silently bounce them back to /login.
+  if (!data.session) {
+    redirect(
+      `/login?message=${encodeURIComponent(
+        "Check your email to confirm your account, then log in. An admin will also need to approve it."
+      )}`
+    );
+  }
+
   redirect("/app");
+}
+
+/** Only same-site paths, so ?next= can't be used as an open redirect. */
+function safeNext(value: FormDataEntryValue | null) {
+  const next = String(value ?? "");
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/app";
 }
 
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const next = safeNext(formData.get("next"));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -44,10 +62,10 @@ export async function signIn(formData: FormData) {
     // Same message regardless of whether the account exists -- Supabase's
     // own error text for bad credentials is already generic ("Invalid
     // login credentials"), so it's passed through as-is.
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(`/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`);
   }
 
-  redirect("/app");
+  redirect(next);
 }
 
 export async function signOut() {
