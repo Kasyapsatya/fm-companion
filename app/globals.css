@@ -318,7 +318,8 @@ h2.section-title { font-family: var(--serif); font-weight: 400; font-size: 30px;
 .author-card { border: 1px solid #e7dcc8; border-radius: 6px; padding: 22px; background: var(--paper); }
 .author-card h3 { font-family: var(--serif); font-size: 18px; margin: 0 0 6px; }
 .author-card p { font-size: 13.5px; color: var(--slate); margin: 0; }
-.author-todo { font-style: italic; color: #b08a55; }
+.author-linkedin { display: inline-flex; color: #0a66c2; transition: opacity 0.15s; }
+.author-linkedin:hover { opacity: 0.75; }
 
 .site-footer { background: var(--ink); color: var(--cream-dim); padding: 48px 0 32px; font-size: 13.5px; }
 .site-footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
