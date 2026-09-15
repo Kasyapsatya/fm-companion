@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
 import { findChapter, PARTS, type Depth } from "@/lib/content";
 import { getChapterBody } from "@/lib/chapterBodies";
 
@@ -16,12 +15,6 @@ export default async function ChapterPage({
 }: {
   params: Promise<{ roman: string; slug: string }>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
   const { roman, slug } = await params;
   const found = findChapter(roman, slug);
   if (!found) notFound();
@@ -37,7 +30,7 @@ export default async function ChapterPage({
   return (
     <div className="app-shell">
       <div className="breadcrumb">
-        <Link href="/app">Companion</Link> / <Link href={`/app/parts/${part.roman}`}>Part {part.roman}</Link>{" "}
+        <Link href="/#companion">Companion</Link> / <Link href={`/parts/${part.roman}`}>Part {part.roman}</Link>{" "}
         / Chapter {String(chapter.number).padStart(2, "0")}
       </div>
       <div className="app-header" style={{ marginBottom: 8 }}>
@@ -60,14 +53,14 @@ export default async function ChapterPage({
 
       <div className="chapter-nav">
         {prev ? (
-          <Link href={`/app/parts/${prev.part.roman}/${prev.chapter.slug}`}>
+          <Link href={`/parts/${prev.part.roman}/${prev.chapter.slug}`}>
             ← {String(prev.chapter.number).padStart(2, "0")} — {prev.chapter.title}
           </Link>
         ) : (
           <span />
         )}
         {next ? (
-          <Link href={`/app/parts/${next.part.roman}/${next.chapter.slug}`}>
+          <Link href={`/parts/${next.part.roman}/${next.chapter.slug}`}>
             {String(next.chapter.number).padStart(2, "0")} — {next.chapter.title} →
           </Link>
         ) : (

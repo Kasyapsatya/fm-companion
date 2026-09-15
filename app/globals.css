@@ -61,6 +61,10 @@ img { max-width: 100%; display: block; }
 }
 .btn-primary { background: var(--amber); color: var(--ink); font-weight: 600; }
 .btn-outline { border-color: var(--cream-dim); color: var(--cream); background: transparent; }
+/* .btn-outline's cream text is for the dark nav; on the light reading
+   sections it all but disappears, so use this there instead. */
+.btn-outline-light-bg { border-color: var(--ink-brown); color: var(--ink-brown); background: transparent; font-weight: 500; }
+.btn-outline-light-bg:hover { background: var(--ink-brown); color: var(--cream); }
 .btn-block { display: block; width: 100%; text-align: center; }
 /* .nav-links a's own color rule is more specific than .btn-primary/.btn-outline
    alone (two selectors vs one), so without this it silently wins and washes
