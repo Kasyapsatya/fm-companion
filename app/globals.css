@@ -34,7 +34,13 @@ body {
   color: var(--ink-brown);
   font-family: var(--sans);
   line-height: 1.55;
+  /* Sticky footer: main grows to fill any leftover height, so short
+     pages still push the footer to the bottom of the viewport. */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+.site-main { flex: 1 0 auto; }
 a { color: inherit; }
 img { max-width: 100%; display: block; }
 
@@ -49,9 +55,12 @@ img { max-width: 100%; display: block; }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
 .nav-title {
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--cream-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   text-decoration: none;
+  padding: 7px 14px; border: 1px solid var(--cream-dim); border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
 }
+.nav-title:hover { background: var(--cream); color: var(--ink); }
 .nav-links { display: flex; gap: 22px; align-items: center; font-size: 14px; }
 .nav-links a { text-decoration: none; color: var(--cream-dim); }
 .nav-links a:hover { color: var(--cream); }
@@ -371,7 +380,8 @@ table.admin-table th, table.admin-table td { text-align: left; padding: 10px 8px
   background: var(--ink); color: var(--cream); border-radius: 8px; padding: 26px 28px; margin-top: 40px;
 }
 .agentos-banner h3 { font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 6px; }
-.agentos-banner p { color: var(--cream-dim); margin: 0; font-size: 13.5px; max-width: 480px; }
+.agentos-banner > div { flex: 1 1 auto; }
+.agentos-banner p { color: var(--cream-dim); margin: 0; font-size: 13.5px; }
 
 .breadcrumb { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #b08a55; margin-bottom: 10px; }
 .breadcrumb a { text-decoration: none; color: inherit; }
