@@ -274,13 +274,12 @@ export const BOOK_META = {
   imprint: "Sri Sathya Sai Institute of Actuaries · First Edition",
 };
 
-// Names are as printed on the manuscript title page, each linked to
-// the author's LinkedIn profile.
+// Each author is linked to their LinkedIn profile.
 export const AUTHORS: { name: string; linkedin: string }[] = [
   { name: "Kasyap KVS", linkedin: "https://www.linkedin.com/in/kkasyap/" },
   { name: "Satya Sai Mudigonda", linkedin: "https://www.linkedin.com/in/satya-sai-mudigonda/" },
-  { name: "Rohan Yashraj", linkedin: "https://www.linkedin.com/in/rohanyashraj/" },
   { name: "Sri Charan", linkedin: "https://www.linkedin.com/in/satya-sai-sri-charan-wootla-572482202/" },
+  { name: "Rohan Yashraj", linkedin: "https://www.linkedin.com/in/rohanyashraj/" },
 ];
 
 // TODO(KK): replace with the real notebooks repository URL.
