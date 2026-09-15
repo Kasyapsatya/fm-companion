@@ -281,11 +281,3 @@ export const AUTHORS: { name: string; linkedin: string }[] = [
   { name: "Sri Charan", linkedin: "https://www.linkedin.com/in/satya-sai-sri-charan-wootla-572482202/" },
   { name: "Rohan Yashraj", linkedin: "https://www.linkedin.com/in/rohanyashraj/" },
 ];
-
-// TODO(KK): replace with the real notebooks repository URL.
-export const GITHUB_REPO_URL = "https://github.com/REPLACE-ME/agentic-ai-fm";
-
-// TODO(KK): replace with the real Agentic OS platform URL once it is
-// live. Placeholder link only -- deliberately points outside this
-// app; the platform itself is a separate, not-yet-built product.
-export const AGENTIC_OS_URL = "https://sssia.org/agentic-os";

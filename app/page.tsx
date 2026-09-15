@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AGENTIC_OS_URL, AUTHORS, BOOK_META, GITHUB_REPO_URL, PARTS, WHY_WHAT_HOW } from "@/lib/content";
+import { AUTHORS, BOOK_META, PARTS, WHY_WHAT_HOW } from "@/lib/content";
 import CoverBlock from "@/components/CoverBlock";
 
 export default function LandingPage() {
@@ -57,9 +57,6 @@ export default function LandingPage() {
               <div className="section-kicker">Companion</div>
               <h2 className="section-title">Explore the book</h2>
             </div>
-            <a href={GITHUB_REPO_URL} className="btn btn-outline-light-bg" target="_blank" rel="noopener noreferrer">
-              Repository &amp; notebooks
-            </a>
           </div>
 
           <p style={{ color: "var(--slate)", fontSize: 15, maxWidth: 640, marginTop: -20, marginBottom: 32 }}>
@@ -87,9 +84,6 @@ export default function LandingPage() {
                 companion shows you the code; Agentic OS is where it runs.
               </p>
             </div>
-            <a href={AGENTIC_OS_URL} className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-              Learn more ↗
-            </a>
           </div>
         </div>
       </section>

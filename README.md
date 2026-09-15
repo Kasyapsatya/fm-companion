@@ -10,20 +10,17 @@ Actuaries initiative of the Sri Sathya Sai Institute of Actuaries
   chapter index per part and a page per chapter, with prev/next
   navigation. Chapter bodies live in `lib/chapterBodies.tsx`; chapters
   without one show a placeholder.
-- **Contact** (`/contact`) — "contact the authors" form; submissions are
-  stored in Supabase.
 
 No Docker, no server to manage: deploys straight from GitHub to Vercel's
-free tier, with Supabase's free tier as the backend for contact messages.
+free tier.
 
 ## Stack
 
-- **Framework**: Next.js 16 (App Router, Server Components, Server
-  Actions) — the contact form is a Server Action that inserts into
-  Supabase directly; no separate backend process.
-- **Database**: Supabase Postgres, behind Row Level Security policies
-  (`supabase/schema.sql`) — anyone may insert a contact message, only
-  an admin may read them.
+- **Framework**: Next.js 16 (App Router, Server Components).
+- **Database**: Supabase Postgres (`supabase/schema.sql`). Not used by
+  any page right now — kept, along with the `lib/supabase/server.ts`
+  client, for future features. It still holds the `contact_messages`
+  table from the removed contact form.
 - **Design**: colors and type taken directly from the approved book
   cover (dark ink-brown, cream, a teal "agent" accent, an amber accent)
   plus the platform's locked Saffron/ink-brown/cream/slate tokens for
@@ -35,67 +32,48 @@ free tier, with Supabase's free tier as the backend for contact messages.
 app/layout.tsx          shared shell: Nav + page + Footer on every page
 app/page.tsx            home page
 app/parts/...           part and chapter pages
-app/contact/            contact form + its Server Action
 components/             Nav, Footer, CoverBlock, CoverSpread
 lib/content.ts          book metadata, parts/chapters, authors, links
 lib/chapterBodies.tsx   transcribed chapter content
-lib/supabase/server.ts  server-side Supabase client
+lib/supabase/server.ts  server-side Supabase client (currently unused)
 supabase/schema.sql     tables + RLS policies
 ```
 
-## One-time setup
-
-### 1. Create the Supabase project
-
-1. Create a free project at [supabase.com](https://supabase.com).
-2. In the SQL editor, run everything in `supabase/schema.sql`. It is
-   safe to re-run in full whenever it changes.
-3. Settings → API: copy the **Project URL** and the **anon/public key**.
-
-### 2. Local development
+## Local development
 
 ```bash
 npm install
-cp .env.local.example .env.local   # paste in the Project URL + anon key
 npm run dev
 ```
 
-Visit http://localhost:3000.
-
-### 3. Reading contact messages
-
-There is no in-app admin UI. Read submissions in the Supabase dashboard
-(Table Editor → `contact_messages`), which bypasses RLS.
+Visit http://localhost:3000. No environment variables are needed while
+no page talks to Supabase. When a feature uses it again, copy
+`.env.local.example` to `.env.local` and paste in the Supabase Project
+URL and anon key (Settings → API).
 
 ## Deploying (free, from GitHub)
 
 1. Push this repo to GitHub.
 2. In Vercel: **Add New → Project**, import the GitHub repo. Vercel
    detects Next.js automatically — no build configuration needed.
-3. Add the two environment variables from `.env.local.example`
-   (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) under
-   **Project → Settings → Environment Variables**.
-4. Deploy. The site is live at the `*.vercel.app` URL Vercel gives you.
-5. When sssia.org's DNS is ready to hand off `fm.sssia.org`: add it as a
+3. Deploy. The site is live at the `*.vercel.app` URL Vercel gives you.
+4. When sssia.org's DNS is ready to hand off `fm.sssia.org`: add it as a
    custom domain in the same Vercel project (Settings → Domains) and
    point its DNS at Vercel per the CNAME/A record Vercel shows you.
    Nothing in the app changes — only the domain in front of it.
 
 ## What's stubbed for later
 
-Named directly in the code (`TODO(KK)` comments) rather than silently
-faked:
-
-- **GitHub repo URL** (`lib/content.ts`) — placeholder until the real
-  notebooks repo exists.
-- **Agentic OS URL** (`lib/content.ts`) — placeholder until the
-  platform is live.
+- **Repository & notebooks** — the home-page button was removed until
+  the notebooks repo exists; an in-browser notebook runner is future
+  work per the book's own Chapter 17-20 production arc.
+- **Agentic OS** — the home-page banner is shown without a link until
+  the platform is live.
 - **Chapter content** — chapters without a body in
   `lib/chapterBodies.tsx` show a "being transcribed" placeholder.
-- **Notebook execution** — chapters link out to GitHub/Colab; an
-  in-browser runner is future work per the book's own Chapter 17-20
-  production arc.
+- **Contact form** — removed for now. The `contact_messages` table and
+  its RLS policies remain in `supabase/schema.sql`; recover the page from
+  git history (`app/contact/`) to bring it back.
 - **Leftover auth tables** — `supabase/schema.sql` still creates the
   `profiles` table and admin/approval policies from the earlier
-  login-gated version. They are unused by the app now, but the
-  `contact_messages` read policy still relies on `public.is_admin()`.
+  login-gated version.

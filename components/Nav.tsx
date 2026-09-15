@@ -7,11 +7,6 @@ export default function Nav() {
         <Link href="/" className="nav-title">
           Home
         </Link>
-        <div className="nav-links">
-          <Link href="/contact" className="btn btn-outline">
-            Contact
-          </Link>
-        </div>
       </div>
     </nav>
   );
